@@ -1,0 +1,32 @@
+# Залежності
+node_modules/
+
+# Збірка
+dist/
+dist-ssr/
+*.local
+
+# Змінні середовища (шаблон — у .env.example)
+.env
+.env.*
+!.env.example
+
+# Логи
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+*.log
+
+# Редактори та ОС
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useMsal, useIsAuthenticated } from '@azure/msal-react';
 import { EventType, AuthenticationResult } from '@azure/msal-browser';
-import { loginRequest, msalConfig } from './authConfig';
+import { loginRequest } from './authConfig';
 import { MaterialUploadForm } from './components/MaterialUploadForm';
 import { TestParserView } from './components/TestParserView';
 import { VerificationQueue } from './components/VerificationQueue';
@@ -13,8 +13,7 @@ import {
   CheckSquare, 
   Settings, 
   LogIn, 
-  LogOut, 
-  Key,
+  LogOut,
   ShieldCheck,
   Lock,
   UserCheck,
@@ -96,11 +95,9 @@ const INITIAL_DEMO_MATERIALS: MaterialItem[] = [
 const App = () => {
   const { instance, accounts } = useMsal();
   const msalAuthenticated = useIsAuthenticated();
-  const [demoLoggedIn, setDemoLoggedIn] = useState(false);
-
   const allAccounts = instance.getAllAccounts();
-  const isAuthenticated = msalAuthenticated || accounts.length > 0 || allAccounts.length > 0 || demoLoggedIn;
-  const activeAccount = instance.getActiveAccount() || accounts[0] || allAccounts[0] || (demoLoggedIn ? { name: 'Сергій Тренер', username: 'serhiy.trainer@company.com' } : null);
+  const isAuthenticated = msalAuthenticated || accounts.length > 0 || allAccounts.length > 0;
+  const activeAccount = instance.getActiveAccount() || accounts[0] || allAccounts[0] || null;
 
   const [forceUpdateTick, setForceUpdateTick] = useState(0);
 
@@ -131,8 +128,6 @@ const App = () => {
   const [activeTab, setActiveTab] = useState<'form' | 'test_parser' | 'queue' | 'settings'>('form');
   const [materials, setMaterials] = useState<MaterialItem[]>(INITIAL_DEMO_MATERIALS);
 
-  const isConfigured = msalConfig.auth.clientId !== "ТВІЙ-CLIENT-ID-З-APP-REGISTRATION";
-
   const handleMaterialCreated = (newMaterial: MaterialItem) => {
     setMaterials(prev => [newMaterial, ...prev]);
   };
@@ -142,17 +137,12 @@ const App = () => {
   };
 
   const signIn = () => {
-    console.log("Запускаємо прямий вхід через loginRedirect...");
     instance.loginRedirect(loginRequest).catch(error => {
       console.error("Entra ID loginRedirect error:", error);
-      if (!isConfigured) {
-        setDemoLoggedIn(true);
-      }
     });
   };
 
   const signOut = () => {
-    setDemoLoggedIn(false);
     instance.logoutRedirect().catch(error => console.error("Помилка виходу:", error));
   };
 
@@ -230,16 +220,6 @@ const App = () => {
               <RotateCcw size={14} className="text-slate-400" />
               <span>Очистити застарілий кеш входу</span>
             </button>
-
-            {!isConfigured && (
-              <button
-                onClick={() => setDemoLoggedIn(true)}
-                className="w-full bg-slate-50 hover:bg-slate-100 text-slate-600 py-2 px-6 rounded-2xl font-medium text-xs transition flex items-center justify-center gap-2"
-              >
-                <UserCheck size={14} className="text-slate-400" />
-                <span>Тестовий вхід розробника</span>
-              </button>
-            )}
           </div>
 
           <div className="border-t pt-4 text-center">
@@ -347,18 +327,6 @@ const App = () => {
       {/* Головний контент */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
         
-        {!isConfigured && (
-          <div className="bg-amber-50 border border-amber-200 text-amber-900 p-4 rounded-2xl flex items-start gap-3 text-sm shadow-sm">
-            <Key className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-            <div>
-              <p className="font-semibold">Модуль аналізу та MSAL підключено!</p>
-              <p className="mt-0.5 text-amber-800 text-xs">
-                Для підключення вашого реального тенанта Microsoft Entra ID вкажіть <code className="bg-amber-100 px-1 rounded font-mono">VITE_AZURE_CLIENT_ID</code> у файлі <code className="bg-amber-100 px-1 rounded font-mono">.env</code> або у файлі <code className="bg-amber-100 px-1 rounded font-mono">src/authConfig.ts</code>.
-              </p>
-            </div>
-          </div>
-        )}
-
         {/* Статус авторизації */}
         <div className="bg-emerald-50 border border-emerald-200 text-emerald-900 p-4 rounded-2xl flex items-center justify-between text-sm shadow-sm">
           <div className="flex items-center space-x-3">
